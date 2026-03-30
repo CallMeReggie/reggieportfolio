@@ -7,6 +7,7 @@
   const skills = data.skills || {};
   const experience = data.experience || {};
   const education = data.education || {};
+  const talent = data.talent || {};
   const contact = data.contact || {};
 
   const $ = (id) => document.getElementById(id);
@@ -437,6 +438,79 @@
     sections.forEach((section) => observer.observe(section));
   }
 
+function renderTalentOverlay() {
+  const singingEl = document.getElementById("talent-singing");
+  const dancingEl = document.getElementById("talent-dancing");
+
+  if (singingEl) {
+    singingEl.innerHTML = (talent.singing || [])
+      .map(
+        (item) => `
+          <div class="card panel talent-item">
+            <h3>${item.title}</h3>
+            <audio controls preload="none">
+              <source src="${item.file}" type="audio/mpeg">
+              Your browser does not support audio playback.
+            </audio>
+          </div>
+        `
+      )
+      .join("") || `<p>No singing uploads yet.</p>`;
+  }
+
+  if (dancingEl) {
+    dancingEl.innerHTML = (talent.dancing || [])
+      .map(
+        (item) => `
+          <div class="card panel talent-item">
+            <h3>${item.title}</h3>
+            <video controls preload="metadata" width="100%">
+              <source src="${item.file}" type="video/mp4">
+              Your browser does not support video playback.
+            </video>
+          </div>
+        `
+      )
+      .join("") || `<p>No dancing uploads yet.</p>`;
+  }
+
+  const openBtn = document.getElementById("openTalent");
+  const closeBtn = document.getElementById("closeTalent");
+  const overlay = document.getElementById("talentOverlay");
+  const tabs = document.querySelectorAll(".talent-choice");
+  const groups = document.querySelectorAll(".talent-group");
+
+  if (openBtn && overlay) {
+    openBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      overlay.classList.add("show");
+      document.body.classList.add("talent-open");
+      overlay.setAttribute("aria-hidden", "false");
+    });
+  }
+
+  if (closeBtn && overlay) {
+    closeBtn.addEventListener("click", () => {
+      overlay.classList.remove("show");
+      document.body.classList.remove("talent-open");
+      overlay.setAttribute("aria-hidden", "true");
+    });
+  }
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const selected = tab.dataset.tab;
+
+      tabs.forEach((t) => t.classList.remove("active"));
+      groups.forEach((g) => g.classList.remove("active"));
+
+      tab.classList.add("active");
+      const target = document.getElementById(`talent-${selected}`);
+      if (target) target.classList.add("active");
+    });
+  });
+}
+
   function init() {
     setGlobalContent();
     renderHero();
@@ -444,6 +518,7 @@
     renderSkills();
     renderExperience();
     renderEducation();
+    renderTalentOverlay();
     renderContact();
     initRevealAnimations();
     initHeaderAndActiveLinks();
